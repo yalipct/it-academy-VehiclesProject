@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.vehicles.project.exceptions.WheelsException;
+
 public abstract class Vehicle {	
 	Scanner input;
 		
@@ -12,16 +14,17 @@ public abstract class Vehicle {
 	protected String color;
 	protected List<Wheel> wheels = new ArrayList<Wheel>();
 	protected TitularVehicle titular;
-	protected List<Persona> conductores = new ArrayList<>();	
+	protected Conductor conductor;
+	protected List<Persona> listaConductores;	
 
-	public Vehicle(String plate, String brand, String color, TitularVehicle titular) {
-	
+	//constructor con 3 parámetros
+	public Vehicle(String plate, String brand, String color) {	
 		this.plate=plate;
 		this.brand = brand;
-		this.color = color;
-		this.titular=titular;		
+		this.color = color;		
 	}
 	
+	//constructor por defecto
 	public Vehicle() {
 	}
 
@@ -30,7 +33,10 @@ public abstract class Vehicle {
 	}
 
 	public void setPlate(String plate) {
-		this.plate = plate;				
+		
+		if(validarMatricula(plate)) {
+			this.plate = plate;			
+		}					
 	}
 
 	public String getBrand() {
@@ -47,8 +53,21 @@ public abstract class Vehicle {
 
 	public void setColor(String color) {
 		this.color = color;
-	}
+	}	
 			
+	public Conductor getConductor() {
+		return conductor;
+	}
+
+	public void setConductor(Conductor conductor) {
+		this.conductor = conductor;
+	}
+
+	public List<Wheel> getWheels() {
+		return wheels;
+	}	
+	
+
 	public TitularVehicle getTitular() {
 		return titular;
 	}
@@ -57,29 +76,43 @@ public abstract class Vehicle {
 		this.titular = titular;
 	}
 	
-	public String agregarConductor(Persona p) {
-		conductores.add(p);
+	/*
+	public List<Persona> agregarConductores(Persona p) {
+		this.listaConductores = new ArrayList<>();
+		listaConductores.add(p);
 		
-		return "Ingreso exitoso";
+		return listaConductores;
 	}
-
-	 
+	
+	public void imprimirListadoConductores() {
+		System.out.println("-------------------------------------");
+		System.out.println("Listado de conductores registrados");
+		System.out.println("-------------------------------------");
+		
+		for (Persona lista : listaConductores) {
+			System.out.println(lista);
+		}
+	}
+	*/ 
 
 	// método para pedir los datos del vehículo
 	public void pedirDatosVehicle() {
 		
 		input= new Scanner(System.in);
 		
+		String plate;
 		do {
 			System.out.println("Introduce la matrícula del vehículo: ");
 			plate = input.nextLine();
 
 			// comprobar que la matrícula tenga 4 números y tres letras
 			if (!validarMatricula(plate)) {
-				System.out.println("La matrícula debe teber 4 números y 3 letras");
+				System.err.println("La matrícula debe teber 4 números y 3 letras");
 			}
 
 		} while (!validarMatricula(plate));
+		
+		this.setPlate(plate);
 
 		System.out.println("Introduce la marca del vehículo: ");
 		brand = input.nextLine();
@@ -89,13 +122,19 @@ public abstract class Vehicle {
 	}
 		
 	
-	// comprobar la matrícula
+	// validar la matrícula
 	public boolean validarMatricula(String texto) {
 
 		return texto.matches("^[0-9]{4}[A-Za-z]{3}$");
 
 	}
-		
-	public abstract boolean comprobarLicencia(char license) throws LicenseException;
+	
+	//método para añadir ruedas según tipo de vehículo
+	public abstract void addTwoWheels(List<Wheel> wheels) throws WheelsException;
+	
 
+	@Override
+	public String toString() {
+		return "Vehicle [plate=" + plate + ", brand=" + brand + ", color=" + color + ", wheels=" + wheels + "]";
+	}
 }

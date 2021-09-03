@@ -1,4 +1,4 @@
-package com.vehicles.project.nivel2;
+package com.vehicles.project.nivel1;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -30,8 +30,7 @@ public class Wheel {
 		return diameter;
 	}
 
-	public void setDiameter(double diameter) {
-
+	public void setDiameter(double diameter) {		
 		this.diameter = diameter;
 	}
 
@@ -40,30 +39,32 @@ public class Wheel {
 		Wheel wheel1 = new Wheel();
 		Wheel wheel2 = new Wheel();
 
-		double diametro;
+		double numero;
 		boolean esDouble=true;
 		System.out.println("Introduce la marca de la rueda " + rightWheel + ": ");
 		wheel1.setBrand(entrada.nextLine());
 
 		do {
 			System.out.println("Introduce el diámetro de la rueda " + rightWheel + ": ");
-			esDouble=true;
+			
 			try {
-				diametro = Double.parseDouble(entrada.nextLine());
+				numero = Double.parseDouble(entrada.nextLine());
+				esDouble=true;				
 			} catch (NumberFormatException e) {
-				diametro=0.0;
+				numero=0.0;
 				esDouble=false;
 				System.err.println("El diámetro de la rueda tiene que ser un número decimal superior a 0,4 e inferior a 4,0");
 			}
-			if(diametro<=0.0) {
+			if(numero<=0.0) {
 				esDouble=false;
 			}
-			if(!validarDiametroRuedas(diametro)) {
+			if(!validarDiametroRuedas(numero)) {
 				esDouble=false;
 			}		
-
+			
 		} while (!esDouble);
-		wheel1.setDiameter(diametro);
+		
+		wheel1.setDiameter(numero);
 		wheels.add(wheel1);
 
 		System.out.println("Introduce la marca de la rueda " + leftWheel + ": ");
@@ -72,22 +73,23 @@ public class Wheel {
 		do {
 			System.out.println("Introduce el diámetro de la rueda " + leftWheel + ": ");
 			try {
-				diametro = Double.parseDouble(entrada.nextLine());
-				esDouble=true;
+				numero = Double.parseDouble(entrada.nextLine());
+				esDouble=true;				
 			} catch (NumberFormatException e) {
-				diametro=0.0;
+				numero=0.0;
 				esDouble=false;
 				System.err.println("El diámetro de la rueda tiene que ser un número decimal superior a 0,4 e inferior a 4,0");
 			}
-			if(diametro<=0.0) {
+			if(numero<0.0) {
 				esDouble=false;
 			}
-			if(!validarDiametroRuedas(diametro)) {
+			if(!validarDiametroRuedas(numero)) {
 				esDouble=false;
-			}		
-
+			}
+			
 		} while (!esDouble);
-		wheel2.setDiameter(diametro);
+		
+		wheel2.setDiameter(numero);
 		wheels.add(wheel2);
 
 		return wheels;
@@ -95,16 +97,13 @@ public class Wheel {
 
 	// comprobar el diámetro de las ruedas
 	public static boolean validarDiametroRuedas(double diameter) {
-		boolean diametroCorrecto = false;
-
-		if (diameter < 0.4 || diameter > 4) {
+		if (diameter < 0.4 || diameter > 4) {			
 			System.err.println("El diámetro de la rueda debe estar entre 0.4 y 4");
-			return diametroCorrecto;
+			return false;
 		}
-		diametroCorrecto = true;
-
-		return diametroCorrecto;
+		return true;
 	}
+	
 
 	@Override
 	public String toString() {

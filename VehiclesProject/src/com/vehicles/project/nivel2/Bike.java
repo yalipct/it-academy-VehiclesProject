@@ -2,51 +2,53 @@ package com.vehicles.project.nivel2;
 
 import java.util.List;
 
-public class Bike extends Vehicle {
+import com.vehicles.project.exceptions.LicenseException;
+import com.vehicles.project.exceptions.WheelsException;
 
-	public Bike(String plate, String brand, String color, TitularVehicle titular) {
-		super(plate, brand, color, titular);
-	}
+public class Bike extends Vehicle {
 	
+	//constructor con 3 parámetros
+	public Bike(String plate, String brand, String color) {
+		super(plate, brand, color);
+	}
+
+	//constructor por defecto
 	public Bike() {
 		
 	}
 	
-	public void addWheels(List<Wheel> frontWheels, List<Wheel> backWheels) throws Exception {
-		addTwoWheels(frontWheels);
-		addTwoWheels(backWheels);
+	//añade las ruedas a la moto
+	public void addWheels(Wheel frontWheel, Wheel backWheel) throws WheelsException {
+		this.wheels.add(frontWheel);
+		this.wheels.add(backWheel);
 	}
-
-	public void addTwoWheels(List<Wheel> wheels) throws Exception {
-		if (wheels.size() != 2)
-			throw new Exception();
-
-		Wheel rightWheel = wheels.get(0);
-		Wheel leftWheel = wheels.get(1);
-
-		if (!rightWheel.equals(leftWheel))
-			throw new Exception();
-
-		this.wheels.add(leftWheel);
-		this.wheels.add(rightWheel);
+	
+	//implementación del método de la clase vehículo para añadir ruedas
+	public void addTwoWheels(List<Wheel> wheels) throws WheelsException {
+		
+		if (wheels.get(0).getDiameter()!=wheels.get(1).getDiameter()) 
+			throw new WheelsException(WheelsException.RUEDAS_DISTINTAS);
+		
+		this.wheels.add(wheels.get(0));
+		this.wheels.add(wheels.get(1));			
 	}
-
+	
+	// método comprobar licencia para conducir una moto
+	public boolean comprobarLicencia(char license) throws LicenseException {
+		
+		if (license != 'A') {
+			throw new LicenseException(LicenseException.TIPO_LICENCIA_INCORRECTA);
+		}
+		
+		return true;
+	}
+	
 	@Override
 	public String toString() {
-		return "Bike [plate=" + plate + ", brand=" + brand + ", color=" + color + ", wheels=" + wheels + ", titular="
-				+ titular.getName() + "]";
+		return "Bike [plate=" + plate + ", brand=" + brand + ", color=" + color + ", wheels=" + wheels + " \n"
+				+ getTitular() + "] \n"
+				+ getConductor() + "]";
 	}
 	
-	
-	// método comprobar licencia
-	public boolean comprobarLicencia(char license) throws LicenseException {
-
-		if (!(license=='A' || license=='a')) {			
-			throw new LicenseException(LicenseException.TIPO_LICENCIA_INCORRECTA);			
-		}else {
-			return true;
-		}
-			
-	}
 
 }

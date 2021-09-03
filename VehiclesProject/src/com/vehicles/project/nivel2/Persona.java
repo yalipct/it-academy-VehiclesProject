@@ -8,23 +8,31 @@ public abstract class Persona {
 
 	protected String name;
 	protected String lastname;
-	//fecha de nacimiento
+	// fecha de nacimiento
 	protected LocalDate fechaNac;
 	
-	
-	
+	//constructor con 3 parámetros
 	public Persona(String name, String lastname, String fecha) {
 		this.name = name;
 		this.lastname = lastname;
-		this.setFechaNac(fecha);		
-		
+
+		try {
+			LocalDate fechaFormateada = LocalDate.parse(fecha, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+			this.fechaNac = fechaFormateada;
+
+		} catch (DateTimeParseException e) {
+			System.err.println("Formato de fecha incorrecto");
+
+		}
+
+	}
+	
+	//constructor por defecto
+	public Persona() {
+
 	}
 
-	public Persona() {
-	
-	}
-	
-		
 	public String getName() {
 		return name;
 	}
@@ -48,9 +56,12 @@ public abstract class Persona {
 		
 	    return fecha;
 	}
-
-	public void setFechaNac(String fecha){
-				
+	
+	public void setFechaNac(LocalDate fechaNac) {
+		this.fechaNac = fechaNac;
+	}
+	
+	public void setFechaNac(String fecha) {
 		try {
 			LocalDate fechaFormateada = LocalDate.parse(fecha, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 			
@@ -58,9 +69,21 @@ public abstract class Persona {
 			
 		} catch (DateTimeParseException e) {
 			System.err.println("Formato de fecha incorrecto");
-			
-        }	
+        }
 	}
+	
+	
+	//método para validar la fecha
+	public boolean esFechaValida(String fecha) {
+		boolean esFechaValida = true;
+		try {
+			LocalDate.parse(fecha, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
+		} catch (DateTimeParseException e) {
+			esFechaValida = false;
+
+		}
+		return esFechaValida;
+	}
 
 }

@@ -2,50 +2,56 @@ package com.vehicles.project.nivel2;
 
 import java.util.List;
 
-public class Truck extends Vehicle{
+import com.vehicles.project.exceptions.LicenseException;
+import com.vehicles.project.exceptions.WheelsException;
 
-	public Truck(String plate, String brand, String color, TitularVehicle titular) {
-		super(plate, brand, color, titular);		
-	}
+public class Truck extends Vehicle{
 	
+	//constructor con 3 parámetros
+	public Truck(String plate, String brand, String color) {
+		super(plate, brand, color);		
+	}	
+	
+	//constructor por defecto
 	public Truck() {
 	}
 	
-	public void addWheels(List<Wheel> frontWheels, List<Wheel> backWheels) throws Exception {
+	//añade las ruedas al camión
+	public void addWheels(List<Wheel> frontWheels, List<Wheel> backWheels) throws WheelsException {
 		addTwoWheels(frontWheels);
 		addTwoWheels(backWheels);
 	}
-
-	public void addTwoWheels(List<Wheel> wheels) throws Exception {
+	
+	//implementación del método de la clase vehículo para añadir ruedas
+	public void addTwoWheels(List<Wheel> wheels) throws WheelsException {
 		if (wheels.size() != 2)
-			throw new Exception();
+			throw new WheelsException(WheelsException.MAXIMO_RUEDAS);
 
 		Wheel rightWheel = wheels.get(0);
 		Wheel leftWheel = wheels.get(1);
 
-		if (!rightWheel.equals(leftWheel))
-			throw new Exception();
-
+		if (rightWheel.getDiameter()!=leftWheel.getDiameter()) 
+			throw new WheelsException(WheelsException.RUEDAS_DISTINTAS);
+		
 		this.wheels.add(leftWheel);
 		this.wheels.add(rightWheel);
+	}
+	
+	// método comprobar licencia para conducir un camión
+	public boolean comprobarLicencia(char license) throws LicenseException {
+
+		if (license != 'C') {
+			throw new LicenseException(LicenseException.TIPO_LICENCIA_INCORRECTA);
+		}
+		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Truck [plate=" + plate + ", brand=" + brand + ", color=" + color + ", wheels=" + wheels + ", titular="
-				+ titular.getName() + "]";
+		return "Truck [plate=" + plate + ", brand=" + brand + ", color=" + color + ", wheels=" + wheels + " \n"
+				+ getTitular() + "] \n"
+				+ getConductor() + "]";
 	}
-	
-	
-	// método comprobar licencia
-	public boolean comprobarLicencia(char license) throws LicenseException {
-		
-		if (!(license=='C' || license=='c')) {			
-			throw new LicenseException(LicenseException.TIPO_LICENCIA_INCORRECTA);
-		}else {
-			return true;
-		}
-			
-	}
+
 	
 }

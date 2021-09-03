@@ -2,6 +2,8 @@ package com.vehicles.project.nivel2;
 
 import java.util.*;
 
+import com.vehicles.project.exceptions.*;
+
 public class ClasePrincipal {
 
 	static Scanner entrada = new Scanner(System.in);
@@ -9,206 +11,275 @@ public class ClasePrincipal {
 
 	public static void main(String[] args) {
 
-		int opcion;
-		boolean salir = false;
+		boolean continuar = true;
+		char opcion;
+		String respuesta;
 
-		while (!salir) {
-
+		while (continuar) {
 			try {
 
-				menuVehiculo();
-				opcion = entrada.nextInt();
+				TitularVehicle titular = new TitularVehicle();
 
+				// objeto de tipo conductor almacenará si el titular es el conductor
+				Conductor conductor;				
+				
+				opcion = menuVehiculo();
+				
+				
 				switch (opcion) {
 
-				case 0:
-					salir = true;
+				case 'Q':
+					continuar = false;
+					System.out.println("No se ha registrado ningún vehículo a nombre de la siguiente persona: \n" + titular);
 					System.out.println("¡Hasta pronto!");
 					break;
 
-				case 1:
-					TitularVehicle titularCoche = new TitularVehicle();
+				case 'A':
 
-					char type = titularCoche.getLicense().getLicenseType();
+					Bike moto = new Bike();
 
-					Vehicle coche = new Car();
+					continuar = moto.comprobarLicencia(titular.getLicense().getLicenseType());
 
-					// Comprobar licencia que lanza una excepción
-					if (coche.comprobarLicencia(type)) {
+					moto.pedirDatosVehicle();
 
-						coche.pedirDatosVehicle();
+					// crear el obj coche con los datos
+					moto = new Bike(moto.getPlate(), moto.getBrand(), moto.getColor());
 
-						// crear el obj coche con los datos
-						coche = new Car(coche.getPlate(), coche.getBrand(), coche.getColor(), titularCoche);
+					moto.setTitular(titular);
 
-						// añadir ruedas delateras
-						Wheel ruedas_delanteras = new Wheel();
-						ruedas_delanteras.frontWheelsData();
-						coche.wheels.add(ruedas_delanteras);
-
-						// añadir ruedas traseras
-						Wheel ruedas_traseras = new Wheel();
-						ruedas_traseras.backWheelsData();
-						coche.wheels.add(ruedas_traseras);
-
-						// ¿El titular será el conductor?
-						System.out.println("¿El titular del vehículo será el conductor?: [si]/[no]");
-
-						String respuesta = entrada.next();
-
-						// si, lo añado a la lista de conductores
-						if (respuesta.equalsIgnoreCase("si")) {
+					// añadir ruedas puede lanzar la excepción de tipo WheelsException
+					do {
+						try {
+							moto.addTwoWheels(Wheel.wheelsData("delantera", "trasera"));
+						} catch (WheelsException e) {
+							System.err.println(e.getMessage());
 							
-							coche.agregarConductor(titularCoche);
-							
-						} else if ((respuesta.equalsIgnoreCase("no"))) {
+						} 
 
-							// no, crear un nuevo usuario (en este caso conductor)
-							Conductor driverCoche = new Conductor();
+					} while (moto.getWheels().isEmpty());
+
+					// ¿El titular será el conductor?
+					System.out.println("¿El titular del vehículo será el conductor?: [si]/[no]");
+					respuesta = entrada.nextLine();
+
+					if (respuesta.equalsIgnoreCase("si")) {
+
+						// creo el conductor titular
+						conductor = new Conductor(titular.getName(), titular.getLastname(), titular.getFechaNac(),
+								titular.getLicense().getLicenseId(), titular.getLicense().getLicenseType(),
+								titular.getLicense().getFechaCad());
+
+						moto.setConductor(conductor);
+
+					} else if ((respuesta.equalsIgnoreCase("no"))) {
+
+						// no, crear un nuevo usuario (en este caso conductor)
+
+						Conductor driverMoto = new Conductor(); // pido los datos del conductor
+						try {
+							// comprobar licencia del conductor;
+							if (moto.comprobarLicencia(driverMoto.getLicense().getLicenseType())) {
+
+								// creo el conductor
+								driverMoto = new Conductor(driverMoto.getName(), driverMoto.getLastname(),
+										driverMoto.getFechaNac(), driverMoto.getLicense().getLicenseId(),
+										driverMoto.getLicense().getLicenseType(),
+										driverMoto.getLicense().getFechaCad());
+
+								moto.setConductor(driverMoto);
+
+							} // sino se lanza la excepción LicenseException
+
+							/*
+							 * si el conductor es nulo pq no tiene la licencia adecuada asigno el titular
+							 * como conductor por defecto
+							 */
+							if (moto.getConductor() == null) {
+
+								conductor = new Conductor(titular.getName(), titular.getLastname(),
+										titular.getFechaNac(), titular.getLicense().getLicenseId(),
+										titular.getLicense().getLicenseType(), titular.getLicense().getFechaCad());
+
+								moto.setConductor(conductor);
+							}
+
+						} catch (LicenseException e) {
+							System.err.println(e.getMessage());
+							System.err.println("Se ha añadido al titular como conductor por defecto del vehículo");
+						}
+
+					} else {
+						System.out.println("Opción incorrecta");
+					}
+
+					System.out.println(moto);
+
+					continuar = false;
+
+					break;
+
+				case 'B':
+					Car coche = new Car();
+
+					continuar = coche.comprobarLicencia(titular.getLicense().getLicenseType());
+
+					coche.pedirDatosVehicle();
+
+					// crear el obj coche con los datos
+					coche = new Car(coche.getPlate(), coche.getBrand(), coche.getColor());
+
+					coche.setTitular(titular);
+
+					// añadir ruedas puede lanzar excepción de tipo WheelsException
+					do {
+						try {
+							coche.addWheels(Wheel.wheelsData("delantera derecha", "delantera izquierda"),
+									Wheel.wheelsData("trasera derecha", "trasera izquierda"));
+						} catch (WheelsException e) {
+							System.err.println(e.getMessage());
+						}
+
+					} while (coche.getWheels().isEmpty());
+
+					// ¿El titular será el conductor?
+					System.out.println("¿El titular del vehículo será el conductor?: [si]/[no]");
+					respuesta = entrada.next();
+
+					if (respuesta.equalsIgnoreCase("si")) {
+
+						// creo el conductor titular
+						conductor = new Conductor(titular.getName(), titular.getLastname(), titular.getFechaNac(),
+								titular.getLicense().getLicenseId(), titular.getLicense().getLicenseType(),
+								titular.getLicense().getFechaCad());
+
+						coche.setConductor(conductor);
+
+					} else if ((respuesta.equalsIgnoreCase("no"))) {
+
+						// no, crear un nuevo usuario (en este caso conductor)
+						Conductor driverCoche = new Conductor();// pido los datos del conductor
+
+						try {
 
 							// comprobar licencia del conductor;
 							if (coche.comprobarLicencia(driverCoche.getLicense().getLicenseType())) {
 
-								// agregar el conductor
-								coche.agregarConductor(driverCoche);
-							} else {
-								System.out.println("Su tipo de licencia no le permite crear un coche");
+								// creo el conductor
+								driverCoche = new Conductor(driverCoche.getName(), driverCoche.getLastname(),
+										driverCoche.getFechaNac(), driverCoche.getLicense().getLicenseId(),
+										driverCoche.getLicense().getLicenseType(),
+										driverCoche.getLicense().getFechaCad());
+
+								coche.setConductor(driverCoche);
+
+							} // sino se lanza la excepción LicenseException
+
+							/*
+							 * si el conductor es nulo pq no tiene la licencia adecuada asigno el titular
+							 * como conductor por defecto
+							 */
+							if (coche.getConductor() == null) {
+								conductor = new Conductor(titular.getName(), titular.getLastname(),
+										titular.getFechaNac(), titular.getLicense().getLicenseId(),
+										titular.getLicense().getLicenseType(), titular.getLicense().getFechaCad());
+
+								coche.setConductor(conductor);
 							}
 
-						} else {
-							System.out.println("Opción incorrecta");
+						} catch (LicenseException e) {
+							System.err.println(e.getMessage());
+							System.err.println("Se ha añadido al titular como conductor por defecto del vehículo");
 						}
-
+					} else {
+						System.out.println("Opción incorrecta");
 					}
-					// agregar el coche a listVehicles
-					agregarVehiculo(coche);
 
 					System.out.println(coche);
 
+					continuar = false;
+
 					break;
+				case 'C':
 
-				case 2:
-					TitularVehicle titularMoto = new TitularVehicle();
+					Truck camion = new Truck();
 
-					Vehicle moto = new Bike();
+					continuar = camion.comprobarLicencia(titular.getLicense().getLicenseType());
 
-					// Comprobar licencia que lanza una excepción
-					if (moto.comprobarLicencia(titularMoto.getLicense().getLicenseType())) {
+					camion.pedirDatosVehicle();
 
-						moto.pedirDatosVehicle();
+					// crear el obj coche con los datos
+					camion = new Truck(camion.getPlate(), camion.getBrand(), camion.getColor());
 
-						// crear el obj coche con los datos
-						moto = new Bike(moto.getPlate(), moto.getBrand(), moto.getColor(), titularMoto);
+					camion.setTitular(titular);
 
-						// añadir ruedas delateras
-						Wheel ruedas_delanteras = new Wheel();
-						ruedas_delanteras.frontWheelsData();
-						moto.wheels.add(ruedas_delanteras);
-
-						// añadir ruedas traseras
-						Wheel ruedas_traseras = new Wheel();
-						ruedas_traseras.backWheelsData();
-						moto.wheels.add(ruedas_traseras);
-
-						// ¿El titular será el conductor?
-						System.out.println("¿El titular del vehículo será el conductor?: [si]/[no]");
-
-						String respuesta = entrada.next();
-
-						// si, lo añadiria a la lista de conductores
-						if (respuesta.equalsIgnoreCase("si")) {
-							
-							moto.agregarConductor(titularMoto);
-							
-						} else if ((respuesta.equalsIgnoreCase("no"))) {
-
-							// no, crear un nuevo usuario (en este caso conductor)
-							Conductor driverMoto = new Conductor();
-
-							// comprobar licencia del conductor;
-							if (moto.comprobarLicencia(driverMoto.getLicense().getLicenseType())) {
-
-								// agregaria el conductor
-								moto.agregarConductor(driverMoto);
-							} else {
-								System.out.println("Su tipo de licencia no le permite crear un coche");
-							}
-
-						} else {
-							System.out.println("Opción incorrecta");
+					// añadir ruedas puede lanzar la excepción de tipo WheelsException
+					do {
+						try {
+							camion.addWheels(Wheel.wheelsData("delantera derecha", "delantera izquierda"),
+									Wheel.wheelsData("trasera derecha", "trasera izquierda"));						
+														
+						} catch (WheelsException e) {
+							System.err.println(e.getMessage());
 						}
+					} while (camion.getWheels().isEmpty());
 
-					}
-					// agregar el coche a listVehicles
-					agregarVehiculo(moto);
+					// ¿El titular será el conductor?
+					System.out.println("¿El titular del vehículo será el conductor?: [si]/[no]");
+					respuesta = entrada.next();
 
-					System.out.println(moto);
-					
-					break;
-				case 3:
-					TitularVehicle titularCamion = new TitularVehicle();
+					// si, lo añado a la lista de conductores
+					if (respuesta.equalsIgnoreCase("si")) {
 
-					Vehicle camion = new Truck();
+						// creo el conductor titular
+						conductor = new Conductor(titular.getName(), titular.getLastname(), titular.getFechaNac(),
+								titular.getLicense().getLicenseId(), titular.getLicense().getLicenseType(),
+								titular.getLicense().getFechaCad());
 
-					// Comprobar licencia que lanza una excepción
-					if (camion.comprobarLicencia(titularCamion.getLicense().getLicenseType())) {
+						camion.setConductor(conductor);
 
-						camion.pedirDatosVehicle();
+					} else if ((respuesta.equalsIgnoreCase("no"))) {
 
-						// crear el obj coche con los datos
-						camion = new Truck(camion.getPlate(), camion.getBrand(), camion.getColor(), titularCamion);
+						// no, crear un nuevo usuario (en este caso conductor)
+						Conductor driverCamion = new Conductor();// pido los datos del conductor
 
-						// añadir ruedas delateras
-						Wheel ruedas_delanteras = new Wheel();
-						ruedas_delanteras.frontWheelsData();
-						camion.wheels.add(ruedas_delanteras);
-
-						// añadir ruedas traseras
-						Wheel ruedas_traseras = new Wheel();
-						ruedas_traseras.backWheelsData();
-						camion.wheels.add(ruedas_traseras);
-
-						// ¿El titular será el conductor?
-						System.out.println("¿El titular del vehículo será el conductor?: [si]/[no]");
-
-						String respuesta = entrada.next();
-
-						// si, lo añado a la lista de conductores
-						if (respuesta.equalsIgnoreCase("si")) {
-							
-							camion.agregarConductor(titularCamion);
-							
-						} else if ((respuesta.equalsIgnoreCase("no"))) {
-
-							// no, crear un nuevo usuario (en este caso conductor)
-							Conductor driverCamion = new Conductor();
-
+						try {
 							// comprobar licencia del conductor;
 							if (camion.comprobarLicencia(driverCamion.getLicense().getLicenseType())) {
 
-								// agregar el conductor
-								camion.agregarConductor(driverCamion);
-							} else {
-								System.out.println("Su tipo de licencia no le permite crear un coche");
+								// creo el conductor
+								driverCamion = new Conductor(driverCamion.getName(), driverCamion.getLastname(),
+										driverCamion.getFechaNac(), driverCamion.getLicense().getLicenseId(),
+										driverCamion.getLicense().getLicenseType(),
+										driverCamion.getLicense().getFechaCad());
+
+								camion.setConductor(driverCamion);
+
+							} // se lanza la excepción LicenseException
+
+							/*
+							 * si el conductor es nulo pq no tiene la licencia adecuada asigno el titular
+							 * como conductor por defecto
+							 */
+							if (camion.getConductor() == null) {
+								conductor = new Conductor(titular.getName(), titular.getLastname(),
+										titular.getFechaNac(), titular.getLicense().getLicenseId(),
+										titular.getLicense().getLicenseType(), titular.getLicense().getFechaCad());
+
+								camion.setConductor(conductor);
 							}
 
-						} else {
-							System.out.println("Opción incorrecta");
+						} catch (LicenseException e) {
+							System.err.println(e.getMessage());
+							System.err.println("Se ha añadido al titular como conductor por defecto del vehículo");
 						}
-
+					} else {
+						System.out.println("Opción incorrecta");
 					}
-					// agregar el coche a listVehicles
-					agregarVehiculo(camion);
 
 					System.out.println(camion);
-					break;
+					
+					continuar = false;
 
-				case 4:
-					if (listadoVehiculos == null || listadoVehiculos.isEmpty()) {
-						System.out.println("No hay vehiculos para mostrar");
-					} else {
-						imprimirListadoVehiculos();
-					}
 					break;
 
 				default:
@@ -216,50 +287,44 @@ public class ClasePrincipal {
 				}
 
 			} catch (LicenseException e) {
+				System.err.println(e.getMessage());
 
-				System.out.println(e.getMessage());
-
-			} catch (InputMismatchException e) {
-				System.out.println("Debes introducir un número");
-				entrada.next();
-			}
-
+			} 
 		} // fin while
 
-		// cerrar consola
-		entrada.close();
-
 	}
 
-	public static void menuUsuario() {
-		System.out.println("Selecciona el usuario:");
-		System.out.println("0: Salir!");
-		System.out.println("1: Conductor");
-		System.out.println("2: Titular");
-		System.out.println("3: Listado de Usuarios");
-	}
+	public static char menuVehiculo() throws LicenseException {
+		char type =0;
+		String caracter;
 
-	public static void menuVehiculo() {
 		System.out.println("Selecciona el vehículo:");
-		System.out.println("0: Salir!");
-		System.out.println("1: Car");
-		System.out.println("2: Bike");
-		System.out.println("3: Truck");
-		System.out.println("4: Listado de Vehículos");
-	}
-
-	public static String agregarVehiculo(Vehicle v) {
-
-		listadoVehiculos.add(v);
-
-		return "Ingreso exitoso";
-	}
-
-	public static void imprimirListadoVehiculos() {
-
-		for (Vehicle lista : listadoVehiculos) {
-			System.out.println(lista);
+		System.out.println("a: Bike");
+		System.out.println("b: Car");
+		System.out.println("c: Truck");
+		System.out.println("q: Salir!");
+		
+		caracter=entrada.nextLine().toUpperCase();
+		
+		if(caracter.length()>1 || caracter.isEmpty() || Character.isDigit(caracter.charAt(0))) {
+			type='Q';
+			System.err.println("Opción no válida para crear un vehículo");
+		}else {
+			type=caracter.charAt(0);
 		}
+		return type;
 	}
 
+
+	/*
+	 * public static String agregarVehiculo(Vehicle v) {
+	 * 
+	 * listadoVehiculos.add(v);
+	 * 
+	 * return "Ingreso exitoso"; }
+	 * 
+	 * public static void imprimirListadoVehiculos() {
+	 * 
+	 * for (Vehicle lista : listadoVehiculos) { System.out.println(lista); } }
+	 */
 }
