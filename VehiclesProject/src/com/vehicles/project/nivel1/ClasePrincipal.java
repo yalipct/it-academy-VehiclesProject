@@ -50,11 +50,11 @@ public class ClasePrincipal {
 						System.err.println(e.getMessage());
 					}					
 					if(coche.getWheels().isEmpty()) {
-						System.err.println("No se añadieron reudas al vehículo");
-						salir=true;
-					}
+						System.err.println("No se añadieron ruedas al vehículo");
+					}else {
+						System.out.println(coche);
+					}					
 					
-					System.out.println(coche);
 
 					break;
 
@@ -76,11 +76,10 @@ public class ClasePrincipal {
 						System.err.println(e.getMessage());
 					}					
 					if(moto.getWheels().isEmpty()) {
-						System.err.println("No se añadieron reudas al vehículo");
-						salir=true;
-					}
-
-					System.out.println(moto);
+						System.err.println("No se añadieron ruedas al vehículo");						
+					}else {
+						System.out.println(moto);
+					}					
 					
 					break;
 
